@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Tests\Service\Container;
+namespace Erik\Raygon\Tests\Support;
 
 use Erik\Raygon\Support\Parameters;
 use Erik\Raygon\Contracts\Support\Parameters as ParametersContract;

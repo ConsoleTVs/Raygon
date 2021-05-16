@@ -33,7 +33,7 @@ class Directory implements DirectoryContract
      */
     public function name(): string
     {
-        return $this->path->lastSegment();
+        return $this->path->basename();
     }
 
     /**
@@ -45,14 +45,6 @@ class Directory implements DirectoryContract
     {
         return $this->path;
     }
-
-    /**
-     * Returns the parent directory relative
-     * to the current one.
-     *
-     * @return Directory
-     */
-    // public function parent(): Directory;
 
     /**
      * Returns a relative file on the given directory.

@@ -6,7 +6,7 @@ namespace Erik\Raygon\Foundation;
 
 use Erik\Raygon\Container\Container;
 use Erik\Raygon\Contracts\Foundation\Application as ApplicationContract;
-use Erik\Raygon\Contracts\Support\Directory;
+use Erik\Raygon\Support\Directory;
 
 class Application extends Container implements ApplicationContract
 {
@@ -27,13 +27,13 @@ class Application extends Container implements ApplicationContract
     /**
      * Creates a new instance of the class.
      *
-     * @param bool $autobind
+     * @param string $base
      */
-    public function __construct(Directory $base)
+    public function __construct(string $base)
     {
         parent::__construct();
 
-        $this->base = $base;
+        $this->base = new Directory($base);
         $this->value(ApplicationContract::class, $this);
     }
 

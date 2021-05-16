@@ -9,32 +9,48 @@ use Stringable;
 interface Path extends Stringable
 {
     /**
-     * Returns the segments of the given path.
-     *
-     * @return array
-     */
-    public function segments(): array;
-
-    /**
-     * Returns the first segment found in the path.
+     * Returns trailing name component of path.
      *
      * @return string
      */
-    public function firstSegment(): string;
+    public function basename(): string;
 
     /**
-     * Returns the last segment found in the path.
+     * Determines if the path is a file.
      *
-     * @return string
+     * @return bool
      */
-    public function lastSegment(): string;
+    public function isFile(): bool;
 
     /**
-     * Returns a new Path as the result of
-     * appending a path into the current one.
+     * Returns the file path.
      *
-     * @param Path $path
-     * @return Path
+     * @return File|null
      */
-    // public function append(Path $path): Path;
+    public function file(): ?File;
+
+    /**
+     * Determines if the path is a directory.
+     *
+     * @return bool
+     */
+    public function isDirectory(): bool;
+
+    /**
+     * Returns the directory of the path.
+     *
+     * If the path is a file, the folder location
+     * of that file is returned instead.
+     *
+     * @return Directory
+     */
+    public function directory(): Directory;
+
+    /**
+     * Returns the information about the path.
+     *
+     * @param int $flags
+     * @return array|string
+     */
+    public function info(int $flags = PATHINFO_ALL): array|string;
 }

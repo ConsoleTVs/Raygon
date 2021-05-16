@@ -6,15 +6,15 @@ namespace Erik\Raygon\Exceptions\Support;
 
 use Exception;
 
-class ParameterNotFoundException extends Exception
+class PathNotFoundException extends Exception
 {
     /**
      * Creates a new class instance.
      *
      * @param string $service
      */
-    public function __construct(string $name)
+    public function __construct(string $path)
     {
-        $this->message = "The parameter `$name` was not found in the parameter list.";
+        $this->message = "The given path `$path` was not found. Make sure it's a real system path.";
     }
 }

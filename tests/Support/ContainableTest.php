@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Tests\Service\Container;
+namespace Erik\Raygon\Tests\Support;
 
 use Erik\Raygon\Tests\Fixtures\DI;
 use Erik\Raygon\Tests\Fixtures\Sample;

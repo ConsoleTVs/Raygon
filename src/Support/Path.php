@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Erik\Raygon\Support;
 
 use Erik\Raygon\Contracts\Support\Path as PathContract;
-use Erik\Raygon\Exceptions\Support\InvalidPathException;
+use Erik\Raygon\Contracts\Support\File as FileContract;
+use Erik\Raygon\Contracts\Support\Directory as DirectoryContract;
+use Erik\Raygon\Exceptions\Support\PathNotFoundException;
 
 class Path implements PathContract
 {
@@ -17,42 +19,30 @@ class Path implements PathContract
     protected string $path;
 
     /**
+     * Determines if the path is a real system
+     * path, and therefore, system functions can
+     * be used to resolve symlinks, relative access
+     * or determining if files and directories really exist.
+     *
+     * @var bool
+     */
+    protected bool $real;
+
+    /**
      * Creates a new instance of the class.
      *
      * @param string $path
-     * @throws InvalidPathException
+     * @throws PathNotFoundException If the path is not real.
      */
     public function __construct(string $path)
     {
-        $this->path = $path;
+        $realPath = realpath($path);
 
-        if (count($this->segments()) === 1) {
-            throw new InvalidPathException($this->path);
+        if ($realPath === false) {
+            throw new PathNotFoundException($path);
         }
-    }
 
-    /**
-     * Returns the segments of the given path.
-     *
-     * @return array
-     */
-    public function segments(): array
-    {
-        return explode('/', $this->path);
-    }
-
-    /**
-     * Returns the first segment found in the path.
-     *
-     * @return string
-     */
-    public function firstSegment(): string
-    {
-        $segments = $this->segments();
-
-        return ($segments[0] === '')
-            ? '/'
-            : $segments[0];
+        $this->path = $realPath;
     }
 
     /**
@@ -60,26 +50,70 @@ class Path implements PathContract
      *
      * @return string
      */
-    public function lastSegment(): string
+    public function basename(): string
     {
-        $segments = $this->segments();
-
-        return ($segments[count($segments) - 1] === '')
-            ? '/'
-            : $segments[count($segments) - 1];
+        return basename($this->path);
     }
 
     /**
-     * Returns a new Path as the result of
-     * appending a path into the current one.
+     * Determines if the path is a file.
      *
-     * @param PathContract $path
-     * @return PathContract
+     * @return bool
      */
-    // public function append(PathContract $path): PathContract
-    // {
-    //     //
-    // }
+    public function isFile(): bool
+    {
+        return is_file($this->path);
+    }
+
+    /**
+     * Returns the file path.
+     *
+     * @return FileContract|null
+     */
+    public function file(): ?FileContract
+    {
+        if (!$this->isFile()) {
+            return null;
+        }
+
+        return new File($this->path);
+    }
+
+    /**
+     * Determines if the path is a directory.
+     *
+     * @return bool
+     */
+    public function isDirectory(): bool
+    {
+        return is_dir($this->path);
+    }
+
+    /**
+     * Returns the directory of the path.
+     *
+     * If the path is a file, the folder location
+     * of that file is returned instead.
+     *
+     * @return DirectoryContract
+     */
+    public function directory(): DirectoryContract
+    {
+        return new Directory(
+            $this->isDirectory() ? $this->path : dirname($this->path),
+        );
+    }
+
+    /**
+     * Returns the information about the path.
+     *
+     * @param int $flags
+     * @return array|string
+     */
+    public function info(int $flags = PATHINFO_ALL): array|string
+    {
+        return pathinfo($this->path);
+    }
 
     /**
      * Magic method {@see https://www.php.net/manual/en/language.oop5.magic.php}

@@ -23,14 +23,6 @@ interface Directory extends Stringable
     public function path(): Path;
 
     /**
-     * Returns the parent directory relative
-     * to the current one.
-     *
-     * @return Directory
-     */
-    // public function parent(): Directory;
-
-    /**
      * Returns a relative file on the given directory.
      *
      * @param string $relativeFile

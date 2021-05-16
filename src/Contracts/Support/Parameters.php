@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Erik\Raygon\Contracts\Support;
 
 use ReflectionParameter;
-use Erik\Raygon\Exceptions\Support\ParameterNotFoundException;
 
 interface Parameters
 {
@@ -54,10 +53,9 @@ interface Parameters
      * Returns the given parameter reflection.
      *
      * @param string $name
-     * @return ReflectionParameter
-     * @throws ParameterNotFoundException
+     * @return ReflectionParameter|null
      */
-    public function parameter(string $name): ReflectionParameter;
+    public function parameter(string $name): ?ReflectionParameter;
 
     /**
      * Returns the parameters with their respective types.
@@ -72,7 +70,6 @@ interface Parameters
      *
      * @param string $name
      * @return string|null
-     * @throws ParameterNotFoundException
      */
     public function type(string $name): ?string;
 

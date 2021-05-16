@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Erik\Raygon\Support;
 
 use Erik\Raygon\Contracts\Support\Parameters as ParametersContract;
-use Erik\Raygon\Exceptions\Support\ParameterNotFoundException;
 use ReflectionClass;
 use ReflectionParameter;
 use ReflectionFunction;
@@ -103,16 +102,15 @@ class Parameters implements ParametersContract
      * Returns the given parameter reflection.
      *
      * @param string $name
-     * @return ReflectionParameter
-     * @throws ParameterNotFoundException If the parameter is not found.
+     * @return ReflectionParameter|null
      */
-    public function parameter(string $name): ReflectionParameter
+    public function parameter(string $name): ?ReflectionParameter
     {
         // There is the possibility that the name of the parameter
         // is not found in the given parameter list. If that's the case
         // we'll throw an exception.
         if (!$this->hasParameter($name)) {
-            throw new ParameterNotFoundException($name);
+            return null;
         }
 
         // current() will always return the fisrt element that matches the given
@@ -156,7 +154,10 @@ class Parameters implements ParametersContract
         // There is the possibility that the parameter type
         // has not been typehinted, therefore we should make sure
         // to understand that null is a possible response.
-        return $this->parameter($name)->getType()?->getName();
+        return $this
+            ->parameter($name)
+            ?->getType()
+            ?->getName();
     }
 
     /**
