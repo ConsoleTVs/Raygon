@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service\Contracts\Container;
+namespace Erik\Raygon\Contracts\Support;
 
 use ReflectionParameter;
-use Erik\Raygon\Service\Exceptions\Container\ParameterNotFoundException;
+use Erik\Raygon\Exceptions\Support\ParameterNotFoundException;
 
 interface Parameters
 {

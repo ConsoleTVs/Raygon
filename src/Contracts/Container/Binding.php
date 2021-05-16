@@ -2,10 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service\Contracts;
+namespace Erik\Raygon\Contracts\Container;
+
+use Erik\Raygon\Exceptions\Container\ResolverNotFoundException;
+use Erik\Raygon\Exceptions\Container\ContainerNotFoundException;
 
 interface Binding
 {
+    /**
+     * Creates a binding from a given value.
+     * The bindings acts as a resolved singleton.
+     *
+     * @param mixed $value
+     * @return static
+     */
+    public static function value(mixed $value): static;
+
     /**
      * Set the current binding to be a singleton.
      *
@@ -41,7 +53,18 @@ interface Binding
      * Resolves the current binding from
      * the container.
      *
+     * @param Container|null $container
      * @return mixed
+     * @throws ContainerNotFoundException
+     * @throws ResolverNotFoundException
      */
-    public function resolve(): mixed;
+    public function resolve(?Container $container = null): mixed;
+
+    /**
+     * Resolves the binding with the given value.
+     *
+     * @param mixed $value
+     * @return static
+     */
+    public function resolved(mixed $value): static;
 }

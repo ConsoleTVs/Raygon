@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service\Container;
+namespace Erik\Raygon\Support;
 
-use Erik\Raygon\Service\Contracts\Container\Parameters as ParametersContract;
-use Erik\Raygon\Service\Exceptions\Container\ParameterNotFoundException;
+use Erik\Raygon\Contracts\Support\Parameters as ParametersContract;
+use Erik\Raygon\Exceptions\Support\ParameterNotFoundException;
 use ReflectionClass;
 use ReflectionParameter;
 use ReflectionFunction;
@@ -28,7 +28,7 @@ class Parameters implements ParametersContract
      */
     public static function function(callable|string $function): static
     {
-        return new Parameters(
+        return new static(
             (new ReflectionFunction($function))->getParameters()
         );
     }
@@ -47,12 +47,12 @@ class Parameters implements ParametersContract
         // If that's the case, the class does not need any parameters
         // thus, an empty Parameters instance can be returned.
         if (is_null($constructor)) {
-            return new Parameters();
+            return new static();
         }
 
         // In case the constructor exists, we need to get its parameters
         // from the reflection class.
-        return new Parameters($constructor->getParameters());
+        return new static($constructor->getParameters());
     }
 
     /**
@@ -64,7 +64,7 @@ class Parameters implements ParametersContract
      */
     public static function method(string|object $classOrInstance, string $method): static
     {
-        return new Parameters(
+        return new static(
             (new ReflectionMethod($classOrInstance, $method))->getParameters(),
         );
     }

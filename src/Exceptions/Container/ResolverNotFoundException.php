@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service\Exceptions;
+namespace Erik\Raygon\Exceptions\Container;
 
 use Exception;
 
-class ContainerNotFoundException extends Exception
+class ResolverNotFoundException extends Exception
 {
     /**
      * Creates a new class instance.
@@ -15,6 +15,6 @@ class ContainerNotFoundException extends Exception
      */
     public function __construct()
     {
-        $this->message = "The container was not found. Add a container first.";
+        $this->message = "The resolved was not found. Add a resolver first.";
     }
 }

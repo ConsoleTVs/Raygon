@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service\Exceptions;
+namespace Erik\Raygon\Exceptions\Container;
 
 use Exception;
 

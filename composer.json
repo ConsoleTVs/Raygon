@@ -1,17 +1,27 @@
 {
   "name": "erik/raygon",
   "description": "A very optimistic PHP web framework for enthusiasts",
-  "type": "library",
-  "require": {
-    "php": "^8.0"
-  },
+  "homepage": "https://github.com/ConsoleTVs/Raygon",
   "license": "MIT",
+  "type": "library",
+  "readme": "README.md",
   "authors": [
     {
       "name": "Erik C. Forés",
       "email": "soc@erik.cat"
     }
   ],
+  "keywords": [
+    "Erik",
+    "PHP",
+    "Framework",
+    "Raygon",
+    "Optimistic",
+    "Enthusiasts"
+  ],
+  "require": {
+    "php": "^8.0"
+  },
   "scripts": {
     "test": "./vendor/bin/phpunit tests --testdox --colors"
   },

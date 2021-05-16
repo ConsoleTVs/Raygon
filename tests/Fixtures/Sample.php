@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Erik\Raygon\Tests\Fixtures;
 
+use Erik\Raygon\Support\Traits\Containable;
+
 class Sample implements SampleContract
 {
+    use Containable;
+
     public static $instances = 0;
 
     public static function resetInstanceCount(int $initial = 0): void

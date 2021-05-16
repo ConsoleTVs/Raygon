@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Erik\Raygon\Tests\Service\Container;
 
-use Erik\Raygon\Service\Container\Parameters;
-use Erik\Raygon\Service\Contracts\Container\Parameters as ParametersContract;
+use Erik\Raygon\Support\Parameters;
+use Erik\Raygon\Contracts\Support\Parameters as ParametersContract;
 use Erik\Raygon\Tests\Fixtures\DI;
 use Erik\Raygon\Tests\Fixtures\Sample;
 use PHPUnit\Framework\TestCase;

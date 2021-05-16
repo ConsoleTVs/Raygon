@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service;
+namespace Erik\Raygon\Container;
 
-use Erik\Raygon\Service\Contracts\Binding as BindingContract;
-use Erik\Raygon\Service\Contracts\Container;
-use Erik\Raygon\Service\Exceptions\ContainerNotFoundException;
+use Erik\Raygon\Contracts\Container\Binding as BindingContract;
+use Erik\Raygon\Contracts\Container\Container;
+use Erik\Raygon\Exceptions\Container\ContainerNotFoundException;
+use Erik\Raygon\Exceptions\Container\ResolverNotFoundException;
 
 class Binding implements BindingContract
 {
@@ -31,9 +32,38 @@ class Binding implements BindingContract
     /**
      * Stores the binding resolver.
      *
-     * @var callable
+     * @var callable|null
      */
     protected $resolver;
+
+    /**
+     * Determines if the variable has been resolved
+     * at least once.
+     *
+     * @var bool
+     */
+    protected bool $hasBeenResolved = false;
+
+    /**
+     * Stores the last resolved value of the binding.
+     *
+     * @var mixed
+     */
+    protected mixed $lastResolvedValue = null;
+
+    /**
+     * Creates a binding from a given value.
+     * The bindings acts as a resolved singleton.
+     *
+     * @param mixed $value
+     * @return static
+     */
+    public static function value(mixed $value): static
+    {
+        return (new static())
+            ->singleton()
+            ->resolved($value);
+    }
 
     /**
      * Creates a new instance of a binding.
@@ -42,37 +72,10 @@ class Binding implements BindingContract
      * @param bool $singleton
      * @param callable $resolver
      */
-    public function __construct(callable $resolver, ?Container $container = null)
+    public function __construct(?callable $resolver = null, ?Container $container = null)
     {
         $this->resolver = $resolver;
         $this->container = $container;
-    }
-
-    /**
-     * Resolves the current binding as a singleton.
-     *
-     * @return mixed
-     */
-    protected function resolveSingleton(): mixed
-    {
-        // Since `null` is a valid resolution value
-        // we must have a flag to indicate if the resolution
-        // has happened already at least once.
-        static $hasBeenResolved = false;
-
-        // The resolved value will be stored in this static variable
-        // preserving state between calls.
-        static $resolved;
-
-        // Successive calls to this function when the binding
-        // has already been resolved will return this variable
-        // instead, acting as a singleton.
-        if ($hasBeenResolved) {
-            return $resolved;
-        }
-
-        $hasBeenResolved = true;
-        return $resolved = ($this->resolver)($this->container);
     }
 
     /**
@@ -131,6 +134,7 @@ class Binding implements BindingContract
      * @param Container|null $container
      * @return mixed
      * @throws ContainerNotFoundException
+     * @throws ResolverNotFoundException
      */
     public function resolve(?Container $container = null): mixed
     {
@@ -145,10 +149,42 @@ class Binding implements BindingContract
         }
 
         // The resolution logic might differ depending
-        // on the singleton flag. If it is a singleton
-        // we'll need to apply different logic to it.
-        return ($this->isSingleton())
-            ? $this->resolveSingleton()
-            : ($this->resolver)($this->container);
+        // on the singleton flag.
+        if ($this->isSingleton() && $this->hasBeenResolved) {
+            return $this->lastResolvedValue;
+        }
+
+        // Check if the resolved exists before attempting to
+        // resolve the value of the binding.
+        if (is_null($this->resolver)) {
+            throw new ResolverNotFoundException();
+        }
+
+        // Resolve the binding value and set the binding
+        // to resolved (at least once).
+        $value = ($this->resolver)($this->container);
+        $this->resolved($value);
+
+        return $value;
+    }
+
+    /**
+     * Resolves the binding with the given value.
+     *
+     * @param mixed $value
+     * @return static
+     */
+    public function resolved(mixed $value): static
+    {
+        // Marking the binding as resolved will allow singletons
+        // to return values directly without having to resolve them
+        // again when called.
+        $this->hasBeenResolved = true;
+
+        // We need to store the last resolved value for storage purposes.
+        // This is the value that singletons will return afterwards.
+        $this->lastResolvedValue = $value;
+
+        return $this;
     }
 }

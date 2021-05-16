@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Erik\Raygon\Tests\Fixtures;
 
+use Erik\Raygon\Support\Traits\Containable;
+
 class DI
 {
+    use Containable;
+
     public Sample $sample;
     public ?string $a;
     public ?string $b;

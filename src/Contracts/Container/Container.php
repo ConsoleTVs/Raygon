@@ -2,13 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service\Contracts;
+namespace Erik\Raygon\Contracts\Container;
 
-use Erik\Raygon\Service\Exceptions\ServiceNotFoundException;
-use Erik\Raygon\Service\Exceptions\ContainerNotFoundException;
+use Erik\Raygon\Exceptions\Container\ServiceNotFoundException;
+use Erik\Raygon\Exceptions\Container\ContainerNotFoundException;
 
 interface Container
 {
+    /**
+     * Creates a new globalized container.
+     *
+     * @return Container
+     */
+    public static function global(): Container;
+
+    /**
+     * Gets the current globalized instance.
+     *
+     * @return Container
+     */
+    public static function getGlobal(): ?Container;
+
     /**
      * Determines if the container has the given service
      * currently binded.
@@ -36,14 +50,26 @@ interface Container
     public function bind(string $service, string|callable|null $resolver = null): Binding;
 
     /**
+     * Registers an existing value as shared in the container.
+     * This allows registering existing instances and computed values
+     * as something that can be reused.
+     *
+     * @param string $service
+     * @param mixed $value
+     * @return Binding
+     */
+    public function value(string $service, mixed $value): Binding;
+
+    /**
      * Makes an instance of the given service by resolving it.
      *
      * @param string $service
+     * @param bool $forceContainer
      * @return mixed
      * @throws ServiceNotFoundException If the service isn't binded.
      * @throws ContainerNotFoundException Unless the binding has a default container or `$forceContainer` is true.
      */
-    public function make(string $service): mixed;
+    public function make(string $service, bool $forceContainer = false): mixed;
 
     /**
      * Calls the given function and automatically inject

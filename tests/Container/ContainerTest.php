@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Tests\Service;
+namespace Erik\Raygon\Tests\Container;
 
-use Erik\Raygon\Service\Binding;
+use Erik\Raygon\Container\Binding;
 use PHPUnit\Framework\TestCase;
-use Erik\Raygon\Service\Container;
-use Erik\Raygon\Service\Contracts\Container as ContainerContract;
+use Erik\Raygon\Container\Container;
+use Erik\Raygon\Contracts\Container\Container as ContainerContract;
 use Erik\Raygon\Tests\Fixtures\DI;
 use Erik\Raygon\Tests\Fixtures\Sample;
 use Erik\Raygon\Tests\Fixtures\SampleContract;

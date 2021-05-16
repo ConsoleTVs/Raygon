@@ -2,15 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Erik\Raygon\Service;
+namespace Erik\Raygon\Container;
 
-use Erik\Raygon\Service\Container\Parameters;
-use Erik\Raygon\Service\Contracts\Container as ContainerContract;
-use Erik\Raygon\Service\Contracts\Binding as BindingContract;
-use Erik\Raygon\Service\Exceptions\ServiceNotFoundException;
+use Erik\Raygon\Support\Parameters;
+use Erik\Raygon\Contracts\Container\Container as ContainerContract;
+use Erik\Raygon\Contracts\Container\Binding as BindingContract;
+use Erik\Raygon\Exceptions\Container\ServiceNotFoundException;
 
 class Container implements ContainerContract
 {
+    /**
+     * Stores a globalized container instance.
+     *
+     * This is the instance that's used to resolve certain
+     * services that require a container instance and don't
+     * have one at hand.
+     */
+    public static ?ContainerContract $global = null;
+
     /**
      * Stores the container bindings in an
      * associative array.
@@ -21,6 +30,37 @@ class Container implements ContainerContract
      * @var array
      */
     protected array $bindings = [];
+
+    /**
+     * Creates a new globalized container instance
+     * and returns it. Keep in mind this stores the
+     * instance itself to the globalized container,
+     * removing the previous one if any.
+     *
+     * @return ContainerContract
+     */
+    public static function global(): ContainerContract
+    {
+        return static::$global = new static();
+    }
+
+    /**
+     * Gets the current globalized instance.
+     *
+     * @return ContainerContract
+     */
+    public static function getGlobal(): ?ContainerContract
+    {
+        return static::$global;
+    }
+
+    /**
+     * Creates a new instance of the class.
+     */
+    public function __construct()
+    {
+        $this->value(ContainerContract::class, $this);
+    }
 
     /**
      * Turns a resolver into a callable resolver.
@@ -127,9 +167,24 @@ class Container implements ContainerContract
     }
 
     /**
+     * Registers an existing value as shared in the container.
+     * This allows registering existing instances and computed values
+     * as something that can be reused.
+     *
+     * @param string $service
+     * @param mixed $value
+     * @return Binding
+     */
+    public function value(string $service, mixed $value): Binding
+    {
+        return $this->bindings[$service] = Binding::value($value);
+    }
+
+    /**
      * Makes an instance of the given service by resolving it.
      *
      * @param string $service
+     * @param bool $forceContainer
      * @return mixed
      * @throws ServiceNotFoundException If the service isn't binded.
      * @throws ContainerNotFoundException Unless the binding has a default container or `$forceContainer` is true.
