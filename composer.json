@@ -1,0 +1,35 @@
+{
+  "name": "erik/raygon",
+  "description": "A very optimistic PHP web framework for enthusiasts",
+  "type": "library",
+  "require": {
+    "php": "^8.0"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Erik C. Forés",
+      "email": "soc@erik.cat"
+    }
+  ],
+  "scripts": {
+    "test": "./vendor/bin/phpunit tests --testdox --colors"
+  },
+  "autoload": {
+    "psr-4": {
+      "Erik\\Raygon\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Erik\\Raygon\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9"
+  }
+}
