@@ -185,12 +185,24 @@ class Container implements ContainerContract
      *
      * @param string $service
      * @param bool $forceContainer
+     * @param bool $bindIfNotFound
+     * @param bool $bindAsSingleton
      * @return mixed
      * @throws ServiceNotFoundException If the service isn't binded.
      * @throws ContainerNotFoundException Unless the binding has a default container or `$forceContainer` is true.
      */
-    public function make(string $service, bool $forceContainer = false): mixed
-    {
+    public function make(
+        string $service,
+        bool $forceContainer = false,
+        bool $bindIfNotFound = true,
+        bool $bindAsSingleton = false,
+    ): mixed {
+        // We might need to bind the service to the container in case it is not found.
+        // This will create a simple binding that can be resolved instantly afterwards.
+        if (!$this->hasBinding($service) && $bindIfNotFound) {
+            $this->bind($service)->singleton($bindAsSingleton);
+        }
+
         // The resolve container is already set when the binding is created.
         // However, if a custom binding instance is provided or the user has
         // changed the container to a different one then we can either force it

@@ -65,11 +65,18 @@ interface Container
      *
      * @param string $service
      * @param bool $forceContainer
+     * @param bool $bindIfNotFound
+     * @param bool $bindAsSingleton
      * @return mixed
      * @throws ServiceNotFoundException If the service isn't binded.
      * @throws ContainerNotFoundException Unless the binding has a default container or `$forceContainer` is true.
      */
-    public function make(string $service, bool $forceContainer = false): mixed;
+    public function make(
+        string $service,
+        bool $forceContainer = false,
+        bool $bindIfNotFound = true,
+        bool $bindAsSingleton = false,
+    ): mixed;
 
     /**
      * Calls the given function and automatically inject
