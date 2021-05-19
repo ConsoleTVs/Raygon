@@ -54,11 +54,12 @@ interface Binding
      * the container.
      *
      * @param Container|null $container
+     * @param array $parameters
      * @return mixed
      * @throws ContainerNotFoundException
      * @throws ResolverNotFoundException
      */
-    public function resolve(?Container $container = null): mixed;
+    public function resolve(?Container $container = null, array $parameters = []): mixed;
 
     /**
      * Resolves the binding with the given value.

@@ -103,6 +103,48 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
+    public function it_can_make_simple_classes_without_explicit_binding()
+    {
+        $container = new Container();
+
+        $instance = $container->make(Sample::class);
+
+        $this->assertTrue($instance instanceof Sample);
+    }
+
+    /** @test */
+    public function it_can_pass_parameters_when_making()
+    {
+        $container = new Container();
+        $container->bind(Sample::class, fn ($container, $parameters) => new Sample(
+            name: $parameters['name'],
+        ));
+        $instance1 = $container->make(Sample::class, [
+            'name' => 'Foo',
+        ]);
+        $instance2 = $container->make(Sample::class, [
+            'name' => 'Bar',
+        ]);
+
+        $this->assertEquals($instance1->name, 'Foo');
+        $this->assertEquals($instance2->name, 'Bar');
+    }
+
+    /** @test */
+    public function it_can_bind_resolved_values()
+    {
+        $container = new Container();
+
+        $instance1 = new Sample('Erik');
+
+        $container->value(Sample::class, $instance1);
+        $instance2 = $container->make(Sample::class);
+
+        $this->assertEquals($instance1->name, 'Erik');
+        $this->assertEquals($instance1->name, $instance2->name);
+    }
+
+    /** @test */
     public function it_implements_the_correct_contracts()
     {
         $this->assertArrayHasKey(ContainerContract::class, class_implements(Container::class));

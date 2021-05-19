@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Erik\Raygon\Contracts\Foundation;
 
+use Erik\Raygon\Contracts\Container\Container;
 use Erik\Raygon\Support\ServiceProvider;
 
-interface Application
+interface Application extends Container
 {
     /**
      * Returns the application version.

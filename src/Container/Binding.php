@@ -132,12 +132,19 @@ class Binding implements BindingContract
      * the container.
      *
      * @param Container|null $container
+     * @param array $parameters
      * @return mixed
      * @throws ContainerNotFoundException
      * @throws ResolverNotFoundException
      */
-    public function resolve(?Container $container = null): mixed
+    public function resolve(?Container $container = null, array $parameters = []): mixed
     {
+        // The resolution logic might differ depending
+        // on the singleton flag.
+        if ($this->isSingleton() && $this->hasBeenResolved) {
+            return $this->lastResolvedValue;
+        }
+
         // The container that will be used might be null, thus allowing
         // to specify a the default container if it is.
         $container ??= $this->container;
@@ -148,12 +155,6 @@ class Binding implements BindingContract
             throw new ContainerNotFoundException();
         }
 
-        // The resolution logic might differ depending
-        // on the singleton flag.
-        if ($this->isSingleton() && $this->hasBeenResolved) {
-            return $this->lastResolvedValue;
-        }
-
         // Check if the resolved exists before attempting to
         // resolve the value of the binding.
         if (is_null($this->resolver)) {
@@ -162,7 +163,7 @@ class Binding implements BindingContract
 
         // Resolve the binding value and set the binding
         // to resolved (at least once).
-        $value = ($this->resolver)($this->container);
+        $value = ($this->resolver)($this->container, $parameters);
         $this->resolved($value);
 
         return $value;

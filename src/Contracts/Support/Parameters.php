@@ -61,9 +61,10 @@ interface Parameters
      * Returns the parameters with their respective types.
      *
      * @param bool $onlyTyped
+     * @param bool $onlyResolvableTypes
      * @return array
      */
-    public function types(bool $onlyTyped = false): array;
+    public function types(bool $onlyTyped = false, $onlyResolvableTypes = true): array;
 
     /**
      * Returns the type of the given parameter name.

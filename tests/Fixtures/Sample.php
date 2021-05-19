@@ -11,14 +11,16 @@ class Sample implements SampleContract
     use Containable;
 
     public static $instances = 0;
+    public ?string $name;
 
     public static function resetInstanceCount(int $initial = 0): void
     {
         static::$instances = $initial;
     }
 
-    public function __construct()
+    public function __construct(?string $name = null)
     {
+        $this->name = $name;
         static::$instances++;
     }
 

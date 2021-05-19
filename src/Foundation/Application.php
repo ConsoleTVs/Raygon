@@ -24,7 +24,7 @@ class Application extends Container implements ApplicationContract
      *
      * @var bool
      */
-    protected bool $booted;
+    protected bool $booted = false;
 
     /**
      * Stores the base directory of the application.
@@ -39,7 +39,7 @@ class Application extends Container implements ApplicationContract
      *
      * @var ServiceProvider[]
      */
-    protected array $providers;
+    protected array $providers = [];
 
     /**
      * Creates a new instance of the class.
@@ -94,7 +94,7 @@ class Application extends Container implements ApplicationContract
         // In case the provider is a string, we need to make sure
         // we create an instance of it first.
         if (is_string($provider)) {
-            $provider = $this->make($provider);
+            $provider = $this->call($provider);
         }
 
         // Prepare the given service provider.
@@ -168,13 +168,17 @@ class Application extends Container implements ApplicationContract
 
         // Initialize all the application providers by
         // calling their respective `initialize` methods.
-        foreach ($this->providers as $provider) {
+        // Using array_walk will allow further booting service
+        // providers that are registered inside another provider's
+        // boot method because array walk takes in a copy of it.
+        array_walk(
+            $this->providers,
             // We don't need to check if the provider has been
             // initialized already because the register method only
             // boots it if the application has been booted, and
             // this is happening right now...
-            $this->call([$provider, 'initialize']);
-        }
+            fn ($provider) => $this->call([$provider, 'initialize'])
+        );
 
         $this->booted = true;
     }

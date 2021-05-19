@@ -10,11 +10,15 @@ use Erik\Raygon\Exceptions\Container\ContainerNotFoundException;
 interface Container
 {
     /**
-     * Creates a new globalized container.
+     * Creates a new globalized container instance
+     * and returns it. Keep in mind this stores the
+     * instance itself to the globalized container,
+     * removing the previous one if any.
      *
-     * @return Container
+     * @param mixed ...$parameters
+     * @return static
      */
-    public static function global(): Container;
+    public static function global(mixed ...$parameters): static;
 
     /**
      * Gets the current globalized instance.
@@ -64,6 +68,7 @@ interface Container
      * Makes an instance of the given service by resolving it.
      *
      * @param string $service
+     * @param array $parameters
      * @param bool $forceContainer
      * @param bool $bindIfNotFound
      * @param bool $bindAsSingleton
@@ -73,6 +78,7 @@ interface Container
      */
     public function make(
         string $service,
+        array $parameters = [],
         bool $forceContainer = false,
         bool $bindIfNotFound = true,
         bool $bindAsSingleton = false,
@@ -88,4 +94,13 @@ interface Container
      * @return mixed
      */
     public function call(callable|string|array $callable, array $parameters = []): mixed;
+
+    /**
+     * Determines if the container is able to call the
+     * given `$callable`.
+     *
+     * @param callable|string|array $callable
+     * @return bool
+     */
+    public function canCall(callable|string|array $callable): bool;
 }

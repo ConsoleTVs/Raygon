@@ -8,6 +8,7 @@ use Erik\Raygon\Support\Parameters;
 use Erik\Raygon\Contracts\Container\Container as ContainerContract;
 use Erik\Raygon\Contracts\Container\Binding as BindingContract;
 use Erik\Raygon\Exceptions\Container\ServiceNotFoundException;
+use ReflectionClass;
 
 class Container implements ContainerContract
 {
@@ -37,11 +38,12 @@ class Container implements ContainerContract
      * instance itself to the globalized container,
      * removing the previous one if any.
      *
-     * @return ContainerContract
+     * @param mixed ...$parameters
+     * @return static
      */
-    public static function global(): ContainerContract
+    public static function global(mixed ...$parameters): static
     {
-        return static::$global = new static();
+        return static::$global = new static(...$parameters);
     }
 
     /**
@@ -118,7 +120,7 @@ class Container implements ContainerContract
         // If the type is not a registered binding, we simply null the value out.
         $parameters = array_map(
             fn ($type) => $this->hasBinding($type) ? $this->make($type) : null,
-            $parameters->types(onlyTyped: true)
+            $parameters->types(onlyTyped: true, onlyResolvableTypes: true),
         );
 
         // Since the function can be called with additional parameters we have to merge
@@ -184,6 +186,7 @@ class Container implements ContainerContract
      * Makes an instance of the given service by resolving it.
      *
      * @param string $service
+     * @param array $parameters
      * @param bool $forceContainer
      * @param bool $bindIfNotFound
      * @param bool $bindAsSingleton
@@ -193,6 +196,7 @@ class Container implements ContainerContract
      */
     public function make(
         string $service,
+        array $parameters = [],
         bool $forceContainer = false,
         bool $bindIfNotFound = true,
         bool $bindAsSingleton = false,
@@ -209,7 +213,7 @@ class Container implements ContainerContract
         // or passing null in order for it to use the currently setup one.
         return $this
             ->binding($service)
-            ->resolve($forceContainer ? $this : null);
+            ->resolve($forceContainer ? $this : null, $parameters);
     }
 
     /**
@@ -249,5 +253,33 @@ class Container implements ContainerContract
         return ($isConstructor)
             ? new $callable(...$parameters)
             : call_user_func($callable, ...$parameters);
+    }
+
+    /**
+     * Determines if the container is able to call the
+     * given `$callable`.
+     *
+     * @param callable|string|array $callable
+     * @return bool
+     */
+    public function canCall(callable|string|array $callable): bool
+    {
+        // Determines if the callable is a class, thus meaning that the
+        // call will initialize a class instance and therefore, call a constructor.
+        $isConstructor = is_string($callable) && class_exists($callable);
+
+        // It is also possible that the callable is in form of a static string. eg 'Sample::abc'.
+        // If that's the case we will need to convert it into an array callable as ['Sample', 'abc']
+        // since the reflection is unable to understand the first case.
+        $isStringStaticMethod = is_string($callable) && strpos($callable, '::') !== false;
+        $explodedCallable = fn () => explode('::', (string) $callable);
+
+        return match (true) {
+            $isConstructor => (new ReflectionClass($callable))->hasMethod('__construct'),
+            $isStringStaticMethod => (new ReflectionClass($explodedCallable()[0]))->hasMethod($explodedCallable()[1]),
+            is_string($callable) => function_exists($callable),
+            is_array($callable) => (new ReflectionClass($callable[0]))->hasMethod($callable[1]),
+            default => false,
+        };
     }
 }
