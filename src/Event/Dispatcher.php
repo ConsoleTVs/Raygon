@@ -73,7 +73,7 @@ class Dispatcher implements DispatcherContract
 
             // To register the listener we simply need to add
             // it to our listeners array.
-            $this->listeners[$key][] = array_merge($this->listeners[$key], (array) $listeners);
+            $this->listeners[$key] = array_merge($this->listeners[$key] ?? [], (array) $listeners);
         }
     }
 
@@ -88,7 +88,7 @@ class Dispatcher implements DispatcherContract
     {
         // We must make the event in case it is a string and a class.
         // This will ensure we now always get an EventContract class.
-        if (is_string($event) && is_class($event)) {
+        if (is_string($event) && class_exists($event)) {
             $event = $this->container->call($event);
         }
 

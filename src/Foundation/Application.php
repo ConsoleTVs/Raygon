@@ -6,6 +6,8 @@ namespace Erik\Raygon\Foundation;
 
 use Erik\Raygon\Container\Container;
 use Erik\Raygon\Contracts\Foundation\Application as ApplicationContract;
+use Erik\Raygon\Event\EventServiceProvider;
+use Erik\Raygon\Log\LogServiceProvider;
 use Erik\Raygon\Support\Directory;
 use Erik\Raygon\Support\ServiceProvider;
 
@@ -51,7 +53,15 @@ class Application extends Container implements ApplicationContract
         parent::__construct();
 
         $this->base = new Directory($base);
+        // Register the application itself to the container.
+        // It is important to do this at the very start since
+        // any service provider, including the base service providers
+        // may have access to it and are able to resolve it.
         $this->value(ApplicationContract::class, $this);
+
+        // Register the base service providers of the application.
+        $this->register(LogServiceProvider::class);
+        $this->register(EventServiceProvider::class);
     }
 
     /**
