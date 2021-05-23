@@ -9,6 +9,7 @@ use Erik\Raygon\Contracts\Foundation\Application as ApplicationContract;
 use Erik\Raygon\Foundation\Application;
 use Erik\Raygon\Tests\Fixtures\ExampleServiceProvider;
 use Erik\Raygon\Tests\Fixtures\Sample;
+use Erik\Raygon\Tests\Fixtures\SampleBootstrapper;
 
 class ApplicationTest extends TestCase
 {
@@ -28,6 +29,19 @@ class ApplicationTest extends TestCase
         $app->register(ExampleServiceProvider::class);
 
         $app->boot();
+
+        $instance = $app->make(Sample::class);
+
+        $this->assertTrue($instance instanceof Sample);
+        $this->assertEquals($instance->name, 'Erik');
+    }
+
+    /** @test */
+    public function it_can_boot_with_bootstrappers()
+    {
+        $app = Application::global(__DIR__);
+
+        $app->boot([SampleBootstrapper::class]);
 
         $instance = $app->make(Sample::class);
 

@@ -104,7 +104,7 @@ class Application extends Container implements ApplicationContract
         // In case the provider is a string, we need to make sure
         // we create an instance of it first.
         if (is_string($provider)) {
-            $provider = $this->call($provider);
+            $provider = $this->make($provider);
         }
 
         // Prepare the given service provider.
@@ -166,9 +166,10 @@ class Application extends Container implements ApplicationContract
     /**
      * Boot the application's service providers.
      *
+     * @param array $bootstrappers
      * @return void
      */
-    public function boot(): void
+    public function boot(array $bootstrappers = []): void
     {
         // There's no need to boot the application
         // if it has already booted in the past.
@@ -176,19 +177,21 @@ class Application extends Container implements ApplicationContract
             return;
         }
 
-        // Initialize all the application providers by
-        // calling their respective `initialize` methods.
-        // Using array_walk will allow further booting service
-        // providers that are registered inside another provider's
-        // boot method because array walk takes in a copy of it.
-        array_walk(
-            $this->providers,
-            // We don't need to check if the provider has been
-            // initialized already because the register method only
-            // boots it if the application has been booted, and
-            // this is happening right now...
-            fn ($provider) => $this->call([$provider, 'initialize'])
-        );
+        // Call the application bootstrappers.
+        foreach ($bootstrappers as $bootstrapper) {
+            $this->make($bootstrapper)->bootstrap($this);
+        }
+
+        // Using for instead of a foreach will allow further booting service
+        // providers that are registered inside another provider's boot method.
+        //
+        // We don't need to check if the provider has been
+        // initialized already because the register method only
+        // boots it if the application has been booted, and
+        // this is happening right now...
+        for ($i = 0; $i < count($this->providers); $i++) {
+            $this->call([$this->providers[$i], 'initialize']);
+        }
 
         $this->booted = true;
     }

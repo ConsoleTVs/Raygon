@@ -6,7 +6,6 @@ namespace Erik\Raygon\Event;
 
 use Erik\Raygon\Contracts\Container\Container;
 use Erik\Raygon\Contracts\Event\Dispatcher as DispatcherContract;
-use Erik\Raygon\Contracts\Event\Event as EventContract;
 
 class Dispatcher implements DispatcherContract
 {
@@ -37,12 +36,12 @@ class Dispatcher implements DispatcherContract
     /**
      * Returns the key of a given event.
      *
-     * @param string|EventContract $event
+     * @param string|object $event
      * @return string
      */
-    protected function key(string|EventContract $event): string
+    protected function key(string|object $event): string
     {
-        return ($event instanceof EventContract)
+        return (is_object($event))
             ? $event::class
             : $event;
     }
@@ -52,11 +51,11 @@ class Dispatcher implements DispatcherContract
      * Both parameters accept arrays to register
      * multiple listeners to multiple events if needed.
      *
-     * @param string|EventContract|array $events
-     * @param string|array $listeners
+     * @param string|object|array $events
+     * @param string|callable|array $listeners
      * @return void
      */
-    public function listen(string|EventContract|array $events, string|array $listeners): void
+    public function listen(string|object|array $events, string|callable|array $listeners): void
     {
         // Valid Examples:
         // - Event::class
@@ -71,25 +70,33 @@ class Dispatcher implements DispatcherContract
             // sure we got the right event key.
             $key = $this->key($event);
 
+            // Create the event listeners in case they are classes.
+            $listeners = array_map(
+                fn ($listener) => is_string($listener) && class_exists($listener)
+                    ? $this->container->make($listener)
+                    : $listener,
+                (array) $listeners
+            );
+
             // To register the listener we simply need to add
             // it to our listeners array.
-            $this->listeners[$key] = array_merge($this->listeners[$key] ?? [], (array) $listeners);
+            $this->listeners[$key] = array_merge($this->listeners[$key] ?? [], $listeners);
         }
     }
 
     /**
      * Dispatches the current event.
      *
-     * @param string|EventContract $event
+     * @param string|object $event
      * @param array $payload
      * @return array
      */
-    public function dispatch(string|EventContract $event, array $payload = []): array
+    public function dispatch(string|object $event, array $payload = []): array
     {
         // We must make the event in case it is a string and a class.
         // This will ensure we now always get an EventContract class.
         if (is_string($event) && class_exists($event)) {
-            $event = $this->container->call($event);
+            $event = $this->container->make($event);
         }
 
         // Responses array will be used as the result
@@ -101,9 +108,10 @@ class Dispatcher implements DispatcherContract
         // the `handle` method on them. We also store the result of that
         // method in the responses array that is futher returned.
         foreach ($this->listeners[$this->key($event)] as $listener) {
-            if (method_exists($listener = $this->container->call($listener), 'handle')) {
-                $responses[] = $listener->handle($event, $payload);
-            }
+            $responses[] = match (true) {
+                is_callable($listener) => $listener($event, $payload),
+                is_object($listener) && method_exists($listener, 'handle') => $listener->handle($event, $payload),
+            };
         }
 
         return $responses;
@@ -112,10 +120,10 @@ class Dispatcher implements DispatcherContract
     /**
      * Determines if the given event has listeners.
      *
-     * @param EventContract $event
+     * @param string|object $event
      * @return bool
      */
-    public function hasListeners(EventContract $event): bool
+    public function hasListeners(string|object $event): bool
     {
         return array_key_exists($this->key($event), $this->listeners);
     }
@@ -123,10 +131,10 @@ class Dispatcher implements DispatcherContract
     /**
      * Returns the current event listeners.
      *
-     * @param EventContract $event
+     * @param string|object $event
      * @return array
      */
-    public function listeners(EventContract $event): array
+    public function listeners(string|object $event): array
     {
         return ($this->hasListeners($event))
             ? $this->listeners[$this->key($event)]

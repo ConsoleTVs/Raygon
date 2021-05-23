@@ -62,7 +62,8 @@ interface Application extends Container
     /**
      * Boot the application's service providers.
      *
+     * @param array $bootstrappers
      * @return void
      */
-    public function boot(): void;
+    public function boot(array $bootstrappers = []): void;
 }
