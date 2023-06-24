@@ -22,7 +22,7 @@ class ContainerTest extends TestCase
         $container->bind('sample', fn () => 10);
         $container->bind(Sample::class);
         $container->bind(SampleContract::class, Sample::class);
-        $container->bind('sample2', fn ($container) => $container->make('sample'));
+        $container->bind('sample2', fn (Container $container) => $container->make('sample'));
         $binding1 = $container->bind('sample3', new Binding(fn () => 10));
         $binding2 = $container->bind('sample4', new Binding(fn () => 10, $container));
 

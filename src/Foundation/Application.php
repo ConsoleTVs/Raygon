@@ -52,7 +52,9 @@ class Application extends Container implements ApplicationContract
     {
         parent::__construct();
 
+        // Store the base directory of the application.
         $this->base = new Directory($base);
+
         // Register the application itself to the container.
         // It is important to do this at the very start since
         // any service provider, including the base service providers
@@ -118,7 +120,7 @@ class Application extends Container implements ApplicationContract
         // services will already be registered. This will call the boot
         // method on the service provider.
         if ($this->hasBooted()) {
-            $this->call([$provider, 'initialize']);
+            $this->call($provider->initialize(...));
         }
 
         return $this->providers[] = $provider;
@@ -190,7 +192,7 @@ class Application extends Container implements ApplicationContract
         // boots it if the application has been booted, and
         // this is happening right now...
         for ($i = 0; $i < count($this->providers); $i++) {
-            $this->call([$this->providers[$i], 'initialize']);
+            $this->call($this->providers[$i]->initialize(...));
         }
 
         $this->booted = true;

@@ -70,13 +70,13 @@ class Dispatcher implements DispatcherContract
             // sure we got the right event key.
             $key = $this->key($event);
 
+            // The callback used to build each listener.
+            $buildListener = fn ($listener) => is_string($listener) && class_exists($listener)
+                ? $this->container->make($listener)
+                : $listener;
+
             // Create the event listeners in case they are classes.
-            $listeners = array_map(
-                fn ($listener) => is_string($listener) && class_exists($listener)
-                    ? $this->container->make($listener)
-                    : $listener,
-                (array) $listeners
-            );
+            $listeners = array_map($buildListener, (array) $listeners);
 
             // To register the listener we simply need to add
             // it to our listeners array.
